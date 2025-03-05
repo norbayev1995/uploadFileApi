@@ -45,7 +45,15 @@ class BookController extends Controller
      */
     public function update(Request $request, Book $book)
     {
-        //
+        if (auth()->id() !== $book->author_id) {
+            return response()->json([
+                "message" => "You can't edit this book"
+            ], 403);
+        }
+        $book->title = $request->title;
+        $book->description = $request->description;
+        $book->update();
+        return new BookResource($book);
     }
 
     /**
