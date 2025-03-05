@@ -13,7 +13,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        return new BookResource(Book::with('author'));
+        return BookResource::collection(Book::with('author')->paginate(10));
     }
 
     /**
@@ -21,7 +21,15 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $book = new Book();
+        $book->title = $request->title;
+        $book->description = $request->description;
+        $book->author_id = auth()->id();
+        $book->save();
+        return response()->json([
+            "message" => "Book created successfully",
+            "data" => new BookResource($book)
+        ], 201);
     }
 
     /**
