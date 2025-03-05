@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\Image;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,11 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => $request->password,
         ]);
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $path = $this->uploadFile($file, "avatar");
+            $user->image()->create(['url' => $path]);
+        }
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
             'access_token' => $token,
