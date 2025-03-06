@@ -44,7 +44,7 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        return new BookResource($book->load('author'));
+        return new BookResource($book->load('author', 'images'));
     }
 
     /**
@@ -68,6 +68,15 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
-        //
+        $paths = $book->images()->pluck("url");
+        foreach ($paths as $path) {
+            $this->deletePhoto($path);
+        }
+        $book->images()->delete();
+        $book->delete();
+
+        return response()->json([
+            "message" => "Book deleted successfully"
+        ]);
     }
 }
