@@ -59,7 +59,17 @@ class BookController extends Controller
         }
         $book->title = $request->title;
         $book->description = $request->description;
-        $book->update();
+        $book->save();
+        if ($request->hasFile('image')) {
+            foreach ($book->images as $image) {
+                $this->deletePhoto($image->url);
+                $image->delete();
+            }
+            foreach ($request->file('image') as $imageFile) {
+                $path = $this->uploadFile($imageFile, "bookImages");
+                $book->images()->create(['url' => $path]);
+            }
+        }
         return new BookResource($book);
     }
 
