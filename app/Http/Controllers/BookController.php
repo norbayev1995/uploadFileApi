@@ -26,6 +26,13 @@ class BookController extends Controller
         $book->description = $request->description;
         $book->author_id = auth()->id();
         $book->save();
+        if ($request->hasFile('image')) {
+            $images = is_array($request->file('image')) ? $request->file('image') : [$request->file('image')];
+            foreach ($images as $image) {
+                $path = $this->uploadFile($image, "bookImages");
+                $book->images()->create(['url' => $path]);
+            }
+        }
         return response()->json([
             "message" => "Book created successfully",
             "data" => new BookResource($book)
