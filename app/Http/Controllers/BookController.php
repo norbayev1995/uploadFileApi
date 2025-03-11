@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
+use App\Models\Image;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
@@ -31,8 +32,15 @@ class BookController extends Controller
             $images = is_array($request->file('image')) ? $request->file('image') : [$request->file('image')];
             foreach ($images as $image) {
                 $path = $this->uploadFile($image, "bookImages");
-                $book->images()->create(['url' => $path]);
+                $bookImages[] = [
+                    'url' => $path,
+                    'imageable_id' => $book->id,
+                    'imageable_type' => get_class($book),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
+            Image::insert($bookImages);
         }
         return response()->json([
             "message" => "Book created successfully",
@@ -68,8 +76,15 @@ class BookController extends Controller
             }
             foreach ($request->file('image') as $imageFile) {
                 $path = $this->uploadFile($imageFile, "bookImages");
-                $book->images()->create(['url' => $path]);
+                $bookImages[] = [
+                    'url' => $path,
+                    'imageable_id' => $book->id,
+                    'imageable_type' => get_class($book),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
+            Image::insert($bookImages);
         }
         return new BookResource($book);
     }
